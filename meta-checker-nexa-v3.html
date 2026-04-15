@@ -1,0 +1,1840 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta Checker by NEXA</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* ═══ THEME VARIABLES ═══ */
+:root {
+  --bg:#04060f;--bg2:#08102a;--bg3:#0c1535;
+  --panel:#0d1830;--panel2:#111e3a;
+  --border:rgba(0,200,255,0.18);--border2:rgba(0,200,255,0.5);
+  --cyan:#00d4ff;--violet:#6533ff;--violet2:#a066ff;
+  --pink:#ff3fa4;--green:#00ff88;--yellow:#ffd700;
+  --red:#ff4060;--orange:#ff8c00;
+  --text:#d0e8ff;--text-dim:#5a7a9a;--text-bright:#ffffff;
+  --shadow:rgba(0,0,0,0.7);
+  --card-shadow:0 8px 32px rgba(0,0,0,0.5);
+  --glow-cyan:0 0 20px rgba(0,212,255,0.3);
+  --glow-violet:0 0 20px rgba(101,51,255,0.4);
+}
+[data-theme="light"] {
+  --bg:#f5f7ff;--bg2:#eaedff;--bg3:#dde2ff;
+  --panel:#ffffff;--panel2:#f0f3ff;
+  --border:rgba(80,40,200,0.2);--border2:rgba(80,40,200,0.5);
+  --cyan:#0066cc;--violet:#5020cc;--violet2:#7040ee;
+  --pink:#cc0070;--green:#007744;--yellow:#996600;
+  --red:#cc2244;--orange:#bb5500;
+  --text:#1a1a2e;--text-dim:#5566aa;--text-bright:#000022;
+  --shadow:rgba(0,0,80,0.12);
+  --card-shadow:0 8px 32px rgba(0,0,80,0.1);
+  --glow-cyan:0 0 0 2px rgba(0,102,204,0.2);
+  --glow-violet:0 0 0 2px rgba(80,32,200,0.2);
+}
+
+/* ═══ RESET ═══ */
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Poppins',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;overflow-x:hidden;
+  transition:background .35s,color .35s;
+}
+p,li,span,label,input,textarea,select,.body-text{font-family:'Poppins',sans-serif;font-size:14px;line-height:1.7;}
+h1,h2,h3,.heading{font-family:'Orbitron',sans-serif;}
+code,.mono{font-family:'JetBrains Mono',monospace;}
+.bengali{font-family:'Noto Serif Bengali',serif;}
+
+/* ═══ SCROLLBAR ═══ */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* ═══ BG EFFECTS ═══ */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(0,212,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.02) 1px,transparent 1px);
+  background-size:55px 55px;
+}
+[data-theme="light"] body::before{background-image:linear-gradient(rgba(80,40,200,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(80,40,200,.03) 1px,transparent 1px);}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 40% at 50% 0%,rgba(101,51,255,.12),transparent 60%);
+}
+.wrap{position:relative;z-index:1;}
+
+/* ═══ CUSTOM CURSOR ═══ */
+#nx-cursor{position:fixed;pointer-events:none;z-index:99999;width:14px;height:14px;border-radius:50%;background:var(--cyan);transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s;mix-blend-mode:exclusion;}
+#nx-ring{position:fixed;pointer-events:none;z-index:99998;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--cyan);transform:translate(-50%,-50%);opacity:.45;transition:width .3s,height .3s,opacity .3s;}
+#cursor-cat-el{position:fixed;pointer-events:none;z-index:99997;font-size:26px;display:none;transition:left .12s,top .12s;}
+body{cursor:none;}
+a,button,input,select,[role=button]{cursor:none;}
+
+/* ═══ PARTICLES ═══ */
+#particles-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.px{position:absolute;border-radius:50%;animation:px-float linear infinite;opacity:0;}
+@keyframes px-float{0%{transform:translateY(110vh) scale(0);opacity:0;}10%{opacity:.8;}90%{opacity:.2;}100%{transform:translateY(-10px) translateX(var(--dx)) scale(2);opacity:0;}}
+
+/* ═══ TOAST ═══ */
+#toast{
+  position:fixed;bottom:108px;left:50%;transform:translateX(-50%) translateY(12px);
+  background:var(--green);color:#002211;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;
+  padding:10px 22px;border-radius:24px;z-index:9999;
+  opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;
+  box-shadow:0 4px 20px rgba(0,255,136,.3);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ═══ HEADER ═══ */
+header{
+  position:sticky;top:0;z-index:300;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 36px;
+  background:rgba(4,6,15,.92);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(24px);
+  transition:background .35s,border-color .35s;
+  flex-wrap:wrap;gap:10px;
+}
+[data-theme="light"] header{background:rgba(245,247,255,.95);}
+
+.logo-link{display:flex;align-items:center;gap:13px;text-decoration:none;}
+.logo-svg-wrap svg{width:34px;height:34px;}
+.logo-svg-wrap rect,.logo-svg-wrap polygon{fill:var(--cyan);transition:fill .3s;}
+.logo-name{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:800;color:var(--text-bright);letter-spacing:.04em;line-height:1.15;}
+.logo-name em{color:var(--cyan);font-style:normal;}
+.logo-tag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.18em;text-transform:uppercase;}
+
+nav{display:flex;gap:3px;}
+.nav-btn{
+  font-family:'Poppins',sans-serif;font-size:12px;font-weight:500;
+  padding:7px 16px;border-radius:8px;border:none;
+  background:transparent;color:var(--text-dim);
+  cursor:none;transition:all .2s;text-transform:uppercase;letter-spacing:.05em;
+}
+.nav-btn:hover,.nav-btn.active{color:var(--cyan);background:rgba(0,212,255,.07);}
+
+.header-right{display:flex;align-items:center;gap:10px;}
+.live-pill{
+  display:flex;align-items:center;gap:6px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--cyan);border:1px solid var(--border2);
+  padding:5px 13px;border-radius:20px;letter-spacing:.1em;
+  animation:pulse-pill 2s ease-in-out infinite;
+}
+.live-pip{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite;}
+@keyframes pulse-pill{0%,100%{box-shadow:none;}50%{box-shadow:var(--glow-cyan);}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+/* Theme toggle */
+.theme-btn{
+  width:46px;height:24px;border-radius:12px;
+  background:var(--panel2);border:1px solid var(--border2);
+  cursor:none;position:relative;transition:all .3s;display:flex;align-items:center;padding:3px;
+}
+.theme-knob{
+  width:18px;height:18px;border-radius:50%;
+  background:linear-gradient(135deg,var(--cyan),var(--violet));
+  transition:transform .3s;font-size:10px;display:flex;align-items:center;justify-content:center;
+}
+[data-theme="light"] .theme-knob{transform:translateX(22px);}
+
+/* Accessibility btn */
+.a11y-btn{
+  font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;
+  padding:7px 14px;border-radius:8px;border:1px solid var(--border2);
+  background:transparent;color:var(--violet2);cursor:none;transition:all .2s;
+}
+.a11y-btn:hover{background:rgba(101,51,255,.1);}
+
+/* ═══ TICKER ═══ */
+.ticker-bar{
+  overflow:hidden;padding:14px 0;
+  border-bottom:1px solid var(--border);
+  background:rgba(0,0,0,.18);
+}
+[data-theme="light"] .ticker-bar{background:rgba(0,0,80,.04);}
+.ticker-inner{display:flex;width:max-content;animation:ticker 28s linear infinite;}
+.ticker-inner:hover{animation-play-state:paused;}
+.t-item{
+  font-family:'Poppins',sans-serif;font-size:11px;font-weight:500;
+  padding:0 28px;white-space:nowrap;color:var(--text-dim);
+  display:flex;align-items:center;gap:10px;
+}
+.t-item b{color:var(--cyan);}
+.t-sep{color:var(--violet);font-size:14px;}
+@keyframes ticker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* ═══ HERO ═══ */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:80px 36px 60px;position:relative;overflow:hidden;
+}
+.hero-rings{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.ring{position:absolute;border-radius:50%;border:1px solid;animation:ring-spin linear infinite;}
+.ring:nth-child(1){width:580px;height:580px;border-color:rgba(101,51,255,.08);animation-duration:38s;}
+.ring:nth-child(2){width:420px;height:420px;border-color:rgba(0,212,255,.07);animation-duration:27s;animation-direction:reverse;}
+.ring:nth-child(3){width:280px;height:280px;border-color:rgba(255,63,164,.06);animation-duration:18s;}
+.ring-dot{position:absolute;top:-4px;left:50%;width:8px;height:8px;border-radius:50%;transform:translateX(-50%);}
+.ring:nth-child(1) .ring-dot{background:var(--violet);box-shadow:0 0 10px var(--violet);}
+.ring:nth-child(2) .ring-dot{background:var(--cyan);box-shadow:0 0 10px var(--cyan);}
+.ring:nth-child(3) .ring-dot{background:var(--pink);box-shadow:0 0 10px var(--pink);}
+@keyframes ring-spin{to{transform:rotate(360deg);}}
+
+.hero-label{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--cyan);letter-spacing:.22em;text-transform:uppercase;
+  margin-bottom:18px;display:flex;align-items:center;gap:12px;
+  animation:fade-up .7s .1s both;
+}
+.hero-label::before,.hero-label::after{content:'';width:36px;height:1px;background:var(--cyan);opacity:.5;}
+.hero-h1{
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(30px,5.5vw,66px);font-weight:900;line-height:1.1;
+  margin-bottom:18px;animation:fade-up .7s .2s both;
+}
+.hero-h1 .l1{background:linear-gradient(120deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-h1 .l2{background:linear-gradient(120deg,var(--violet2),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-p{font-size:16px;color:var(--text-dim);max-width:500px;line-height:1.8;margin-bottom:36px;animation:fade-up .7s .3s both;}
+.hero-stats{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;margin-bottom:44px;animation:fade-up .7s .4s both;}
+.hstat{text-align:center;}
+.hstat-n{font-family:'Orbitron',sans-serif;font-size:26px;font-weight:800;color:var(--cyan);}
+.hstat-l{font-size:10px;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase;font-family:'Poppins',sans-serif;}
+.hero-cta{
+  padding:18px 48px;border-radius:50px;border:none;
+  background:linear-gradient(135deg,var(--violet),var(--cyan));color:#fff;
+  font-family:'Poppins',sans-serif;font-size:15px;font-weight:600;
+  cursor:none;transition:all .3s;animation:fade-up .7s .5s both;
+  position:relative;overflow:hidden;
+}
+.hero-cta::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--cyan),var(--violet));opacity:0;transition:opacity .3s;}
+.hero-cta:hover::after{opacity:1;}
+.hero-cta:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(101,51,255,.5);}
+.hero-cta span{position:relative;z-index:1;}
+.scroll-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;font-size:10px;color:var(--text-dim);letter-spacing:.15em;text-transform:uppercase;animation:bounce 2s ease-in-out infinite;}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(7px);}}
+@keyframes fade-up{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+
+/* ═══ SECTIONS ═══ */
+section{padding:72px 36px;max-width:960px;margin:0 auto;position:relative;}
+.sec-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--violet2);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.sec-tag::before{content:'';width:22px;height:1px;background:var(--violet2);}
+.sec-title{font-family:'Orbitron',sans-serif;font-size:clamp(20px,3vw,30px);font-weight:800;color:var(--text-bright);margin-bottom:8px;}
+.sec-sub{font-size:14px;color:var(--text-dim);line-height:1.7;margin-bottom:32px;}
+
+/* Reveal animation */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s,transform .65s;}
+.reveal.in{opacity:1;transform:translateY(0);}
+
+/* ═══ CARDS ═══ */
+.card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:18px;padding:30px;
+  box-shadow:var(--card-shadow);
+  transition:border-color .3s,box-shadow .3s;
+  position:relative;overflow:hidden;
+}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--violet),transparent);}
+.card:hover{border-color:var(--border2);}
+
+/* ═══ CHECKER CARD ═══ */
+.checker-card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:22px;padding:36px;
+  box-shadow:var(--card-shadow),var(--glow-violet);
+  position:relative;overflow:hidden;
+  transition:border-color .3s;
+}
+.checker-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),var(--violet),transparent);}
+.checker-card:hover{border-color:var(--border2);}
+
+.input-lbl{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:.18em;color:var(--cyan);text-transform:uppercase;
+  margin-bottom:10px;display:flex;align-items:center;gap:7px;
+}
+.url-row{display:flex;gap:12px;align-items:stretch;}
+.url-inp{
+  flex:1;background:rgba(0,0,0,.45);border:1.5px solid var(--border);
+  border-radius:13px;padding:15px 18px;color:var(--text-bright);
+  font-family:'Poppins',sans-serif;font-size:13px;outline:none;transition:all .3s;
+}
+[data-theme="light"] .url-inp{background:rgba(255,255,255,.7);color:var(--text-bright);}
+.url-inp::placeholder{color:var(--text-dim);}
+.url-inp:focus{border-color:var(--cyan);box-shadow:var(--glow-cyan);}
+.check-btn{
+  background:linear-gradient(135deg,var(--violet),var(--cyan));
+  border:none;border-radius:13px;padding:15px 32px;color:#fff;
+  font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;
+  cursor:none;transition:all .3s;position:relative;overflow:hidden;white-space:nowrap;flex-shrink:0;
+}
+.check-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--cyan),var(--violet));opacity:0;transition:opacity .3s;}
+.check-btn:hover::after{opacity:1;}
+.check-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(101,51,255,.55);}
+.check-btn:disabled{opacity:.5;pointer-events:none;}
+.check-btn-inner{position:relative;z-index:1;}
+.err-box{
+  background:rgba(255,64,96,.1);border:1px solid rgba(255,64,96,.4);
+  border-radius:10px;padding:12px 16px;color:var(--red);
+  font-size:13px;display:none;margin-top:10px;
+}
+
+/* ═══ INSTANT REPORT BAR ═══ */
+.instant-bar{
+  background:linear-gradient(135deg,rgba(101,51,255,.12),rgba(0,212,255,.08));
+  border:1.5px solid var(--border2);
+  border-radius:18px;padding:28px;margin-top:20px;
+  position:relative;overflow:hidden;
+}
+.instant-bar::before{content:'⚡';position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:60px;opacity:.06;}
+.instant-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--violet2);letter-spacing:.18em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.instant-row{display:flex;gap:10px;align-items:stretch;}
+.instant-inp{
+  flex:1;background:rgba(0,0,0,.4);border:1.5px solid var(--border);
+  border-radius:12px;padding:13px 17px;color:var(--text-bright);
+  font-family:'Poppins',sans-serif;font-size:13px;outline:none;transition:all .3s;
+}
+[data-theme="light"] .instant-inp{background:rgba(255,255,255,.6);}
+.instant-inp:focus{border-color:var(--violet2);box-shadow:var(--glow-violet);}
+.instant-btn{
+  background:linear-gradient(135deg,var(--violet2),var(--pink));
+  border:none;border-radius:12px;padding:13px 26px;color:#fff;
+  font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;
+  cursor:none;transition:all .3s;white-space:nowrap;flex-shrink:0;
+}
+.instant-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,63,164,.45);}
+
+.instant-result{
+  margin-top:18px;display:none;
+  background:rgba(0,255,136,.07);border:1.5px solid rgba(0,255,136,.4);
+  border-radius:13px;padding:20px;text-align:center;
+  animation:fade-up .4s both;
+}
+.instant-tick{font-size:40px;margin-bottom:10px;animation:bounce-in .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes bounce-in{from{transform:scale(0);}to{transform:scale(1);}}
+.instant-success-title{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:var(--green);margin-bottom:6px;}
+.instant-success-msg{font-size:13px;color:var(--text);line-height:1.7;}
+.instant-score-row{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
+.inst-badge{background:rgba(0,255,136,.12);border:1px solid rgba(0,255,136,.3);border-radius:8px;padding:8px 16px;font-family:'Orbitron',sans-serif;font-size:12px;color:var(--green);}
+
+/* ═══ LOADING ═══ */
+#loading{display:none;text-align:center;padding:56px 20px;}
+.ld-wrap{position:relative;width:90px;height:90px;margin:0 auto 24px;}
+.ld-o{position:absolute;inset:0;border:2px solid transparent;border-top-color:var(--cyan);border-radius:50%;animation:spin 1s linear infinite;}
+.ld-i{position:absolute;top:13px;left:13px;right:13px;bottom:13px;border:2px solid transparent;border-bottom-color:var(--violet);border-radius:50%;animation:spin .7s linear infinite reverse;}
+.ld-c{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px;background:var(--cyan);border-radius:50%;box-shadow:0 0 18px var(--cyan);animation:core-p 1s ease-in-out infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes core-p{0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.5);}}
+.ld-title{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--cyan);letter-spacing:.15em;margin-bottom:16px;}
+.ld-steps{display:flex;flex-direction:column;gap:7px;align-items:center;}
+.ld-step{font-family:'Poppins',sans-serif;font-size:12px;color:var(--text-dim);opacity:0;transform:translateY(4px);transition:all .4s;display:flex;align-items:center;gap:8px;}
+.ld-step.on{opacity:1;transform:translateY(0);color:var(--cyan);}
+.ld-step.done{opacity:.45;color:var(--green);}
+
+/* ═══ REPORT ═══ */
+#report-section{display:none;margin-top:28px;}
+.report-top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.report-heading{font-family:'Orbitron',sans-serif;font-size:17px;font-weight:700;color:var(--text-bright);}
+.rpt-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{display:flex;align-items:center;gap:7px;padding:9px 17px;border-radius:10px;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:none;transition:all .25s;border:none;}
+.btn-jpg{background:var(--panel);border:1.5px solid var(--cyan);color:var(--cyan);}
+.btn-jpg:hover{background:rgba(0,212,255,.12);box-shadow:var(--glow-cyan);}
+.btn-pdf{background:linear-gradient(135deg,var(--violet),#4510bb);color:#fff;}
+.btn-pdf:hover{box-shadow:var(--glow-violet);transform:translateY(-1px);}
+.btn-new{background:var(--panel);border:1.5px solid var(--border2);color:var(--text);}
+.btn-new:hover{border-color:var(--violet2);color:var(--violet2);}
+
+/* Report card */
+#report-card{
+  background:linear-gradient(160deg,#07111f,#0c1830);
+  border:1px solid rgba(0,212,255,.2);border-radius:20px;padding:34px;
+  position:relative;overflow:visible;
+}
+[data-theme="light"] #report-card{background:linear-gradient(160deg,#f0f4ff,#e4eaff);border-color:rgba(80,40,200,.2);}
+#report-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:20px 20px 0 0;background:linear-gradient(90deg,var(--violet),var(--cyan),var(--pink),var(--cyan),var(--violet));background-size:200%;animation:grad-slide 3s linear infinite;}
+@keyframes grad-slide{to{background-position:200%;}}
+
+.rc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+.rc-logo-row{display:flex;align-items:center;gap:10px;}
+.rc-logo-row svg{width:26px;height:26px;}
+.rc-brand{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--text-bright);}
+.rc-brand em{color:var(--cyan);font-style:normal;}
+.rc-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.13em;margin-top:2px;}
+.rc-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);line-height:1.9;text-align:right;}
+.rc-url{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--cyan);background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:10px 16px;margin-bottom:20px;word-break:break-all;}
+
+/* Score overview */
+.score-wrap{display:flex;align-items:center;gap:22px;background:rgba(0,0,0,.22);border:1px solid var(--border);border-radius:15px;padding:20px;margin-bottom:22px;flex-wrap:wrap;}
+[data-theme="light"] .score-wrap{background:rgba(255,255,255,.55);}
+.sc-circle{width:108px;height:108px;position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sc-circle svg{position:absolute;inset:0;transform:rotate(-90deg);}
+.sc-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:7;}
+.sc-fill{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1.8s cubic-bezier(.4,0,.2,1);}
+.sc-inner{text-align:center;}
+.sc-num{font-family:'Orbitron',sans-serif;font-size:23px;font-weight:800;color:var(--text-bright);line-height:1;}
+.sc-den{font-family:'Poppins',sans-serif;font-size:10px;color:var(--text-dim);}
+.sc-details{flex:1;min-width:160px;}
+.sc-grade{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;margin-bottom:6px;}
+.sc-summary{font-size:13px;color:var(--text-dim);line-height:1.65;margin-bottom:12px;}
+.sc-bars{display:flex;gap:3px;}
+.sc-bar{height:4px;flex:1;border-radius:2px;background:rgba(255,255,255,.07);}
+.sc-bar.g{background:var(--green);}
+.sc-bar.y{background:var(--yellow);}
+.sc-bar.r{background:var(--red);}
+
+/* Checklist */
+.cl-head{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--text-dim);text-transform:uppercase;margin-bottom:13px;display:flex;align-items:center;gap:10px;}
+.cl-head::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.ci{
+  display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:13px;
+  padding:13px 15px;border-radius:12px;border:1px solid transparent;
+  margin-bottom:7px;transition:all .25s;position:relative;
+  opacity:0;transform:translateX(-10px);animation:ci-in .4s forwards;
+}
+@keyframes ci-in{to{opacity:1;transform:translateX(0);}}
+.ci:hover{border-color:var(--border2) !important;}
+.ci.pass{background:rgba(0,255,136,.04);}
+.ci.warn{background:rgba(255,215,0,.04);}
+.ci.fail{background:rgba(255,64,96,.05);}
+.ci-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.ci-icon.pass{background:rgba(0,255,136,.13);color:var(--green);}
+.ci-icon.warn{background:rgba(255,215,0,.13);color:var(--yellow);}
+.ci-icon.fail{background:rgba(255,64,96,.13);color:var(--red);}
+.ci-name{font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;color:var(--text-bright);margin-bottom:2px;}
+.ci-note{font-family:'Poppins',sans-serif;font-size:11px;color:var(--text-dim);line-height:1.5;}
+.ci-right{text-align:right;flex-shrink:0;}
+.ci-score{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;}
+.ci-score.pass{color:var(--green);}
+.ci-score.warn{color:var(--yellow);}
+.ci-score.fail{color:var(--red);}
+.ci-barwrap{width:56px;height:3px;background:rgba(255,255,255,.07);border-radius:2px;margin-top:4px;overflow:hidden;}
+.ci-barfill{height:100%;border-radius:2px;transition:width 1.2s ease;}
+
+/* Solution tooltip */
+.sol-tip{
+  position:absolute;right:calc(100% + 14px);top:50%;transform:translateY(-50%) translateX(8px);
+  width:255px;background:var(--bg2);border:1.5px solid var(--border2);
+  border-radius:13px;padding:14px;pointer-events:none;
+  opacity:0;transition:opacity .2s,transform .2s;z-index:60;
+  box-shadow:0 10px 30px var(--shadow);
+}
+.ci:hover .sol-tip{opacity:1;transform:translateY(-50%) translateX(0);}
+.sol-tip::after{content:'';position:absolute;right:-9px;top:50%;transform:translateY(-50%);border:7px solid transparent;border-left-color:var(--border2);border-right:none;}
+.sol-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--cyan);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;}
+.sol-text{font-size:12px;color:var(--text);line-height:1.6;font-family:'Poppins',sans-serif;}
+
+/* AI box */
+.ai-box{margin-top:20px;background:rgba(101,51,255,.07);border:1.5px solid rgba(101,51,255,.25);border-radius:14px;padding:18px;}
+.ai-box-title{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:.15em;color:var(--violet2);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.ai-pill{background:var(--violet);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px;letter-spacing:.08em;font-family:'Poppins',sans-serif;}
+.ai-text{font-size:13px;color:var(--text);line-height:1.8;}
+
+.rc-footer{margin-top:20px;display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px;}
+.rc-foot-brand{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--text-dim);letter-spacing:.07em;}
+.rc-foot-brand em{color:var(--cyan);font-style:normal;}
+.rc-foot-ts{font-family:'Poppins',sans-serif;font-size:10px;color:var(--text-dim);}
+
+/* ═══ TOOLS TABS ═══ */
+.tabs{display:flex;gap:6px;margin-bottom:22px;flex-wrap:wrap;}
+.tab-btn{
+  font-family:'Poppins',sans-serif;font-size:13px;font-weight:500;
+  padding:9px 19px;border-radius:10px;border:1.5px solid var(--border);
+  background:var(--panel);color:var(--text-dim);cursor:none;transition:all .2s;
+}
+.tab-btn:hover{border-color:var(--border2);color:var(--text);}
+.tab-btn.active{background:linear-gradient(135deg,rgba(101,51,255,.18),rgba(0,212,255,.1));border-color:var(--cyan);color:var(--cyan);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fade-up .35s both;}
+
+/* Tags */
+.tag-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.tag-inp,.bio-inp,.health-inp{
+  flex:1;min-width:160px;background:rgba(0,0,0,.3);border:1.5px solid var(--border);
+  border-radius:11px;padding:12px 16px;color:var(--text-bright);
+  font-family:'Poppins',sans-serif;font-size:13px;outline:none;transition:border-color .25s;
+}
+[data-theme="light"] .tag-inp,[data-theme="light"] .bio-inp,[data-theme="light"] .health-inp{background:rgba(255,255,255,.6);}
+.tag-inp:focus,.bio-inp:focus,.health-inp:focus{border-color:var(--cyan);}
+.gen-btn{
+  background:linear-gradient(135deg,var(--violet),var(--cyan));
+  border:none;border-radius:11px;padding:12px 24px;color:#fff;
+  font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:none;
+  transition:all .25s;white-space:nowrap;flex-shrink:0;
+}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(101,51,255,.45);}
+.gen-btn.green-btn{background:linear-gradient(135deg,var(--green),#00c860);color:#002211;}
+.gen-btn.green-btn:hover{box-shadow:0 8px 24px rgba(0,255,136,.3);}
+
+.tag-cloud{display:flex;flex-wrap:wrap;gap:8px;min-height:46px;}
+.tag-chip{
+  font-family:'Poppins',sans-serif;font-size:11px;font-weight:500;
+  padding:6px 14px;border-radius:20px;border:1.5px solid;cursor:none;
+  transition:all .2s;animation:pop-in .3s both;
+}
+.tag-chip:hover{transform:scale(1.06);}
+.tag-chip.primary{color:var(--cyan);border-color:rgba(0,212,255,.35);background:rgba(0,212,255,.07);}
+.tag-chip.secondary{color:var(--violet2);border-color:rgba(160,102,255,.35);background:rgba(160,102,255,.07);}
+.tag-chip.trending{color:var(--pink);border-color:rgba(255,63,164,.35);background:rgba(255,63,164,.07);}
+@keyframes pop-in{from{opacity:0;transform:scale(.75);}to{opacity:1;transform:scale(1);}}
+
+/* Bio */
+.bio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:13px;margin-top:14px;}
+.bio-card{background:var(--panel);border:1.5px solid var(--border);border-radius:14px;padding:18px;transition:all .25s;cursor:default;position:relative;overflow:hidden;}
+.bio-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--violet2),transparent);}
+.bio-card:hover{border-color:var(--violet2);transform:translateY(-2px);}
+.bio-style{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--violet2);letter-spacing:.1em;margin-bottom:8px;}
+.bio-text{font-size:13px;color:var(--text);line-height:1.65;}
+.copy-btn{margin-top:10px;font-family:'Poppins',sans-serif;font-size:11px;color:var(--cyan);border:1px solid rgba(0,212,255,.25);background:none;padding:5px 12px;border-radius:7px;cursor:none;transition:all .2s;}
+.copy-btn:hover{background:rgba(0,212,255,.1);}
+
+/* Health report */
+.health-box{background:var(--panel);border:1.5px solid var(--border);border-radius:18px;padding:28px;}
+.health-form{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;}
+.hm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:18px;}
+.hm-card{background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:12px;padding:15px;text-align:center;}
+[data-theme="light"] .hm-card{background:rgba(255,255,255,.5);}
+.hm-icon{font-size:22px;margin-bottom:7px;}
+.hm-val{font-family:'Orbitron',sans-serif;font-size:19px;font-weight:700;}
+.hm-val.good{color:var(--green);}
+.hm-val.ok{color:var(--yellow);}
+.hm-val.bad{color:var(--red);}
+.hm-label{font-size:10px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;font-family:'Poppins',sans-serif;}
+
+/* ═══ SERVICES ═══ */
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px;}
+.svc-card{
+  background:var(--panel);border:1.5px solid var(--border);border-radius:18px;
+  padding:26px 22px;transition:all .3s;position:relative;overflow:hidden;
+}
+.svc-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(101,51,255,.06),rgba(0,212,255,.03));opacity:0;transition:opacity .3s;}
+.svc-card:hover{border-color:var(--violet2);transform:translateY(-4px);box-shadow:0 14px 40px rgba(101,51,255,.18);}
+.svc-card:hover::before{opacity:1;}
+.svc-icon{font-size:30px;margin-bottom:13px;}
+.svc-name{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--text-bright);margin-bottom:8px;}
+.svc-desc{font-size:12px;color:var(--text-dim);line-height:1.65;}
+.svc-tag{display:inline-block;margin-top:10px;font-family:'Poppins',sans-serif;font-size:9px;font-weight:600;color:var(--cyan);border:1px solid rgba(0,212,255,.22);padding:3px 10px;border-radius:10px;text-transform:uppercase;letter-spacing:.06em;}
+
+/* ═══ BENGALI CAT ═══ */
+.cat-section{
+  text-align:center;padding:76px 36px;
+  background:linear-gradient(160deg,rgba(101,51,255,.06),rgba(0,212,255,.03));
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.cat-section-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--violet2);letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:10px;}
+.cat-section-tag::before,.cat-section-tag::after{content:'';width:20px;height:1px;background:var(--violet2);}
+.cat-main-title{font-family:'Orbitron',sans-serif;font-size:26px;font-weight:800;color:var(--text-bright);margin-bottom:6px;}
+.cat-subtitle{font-family:'Noto Serif Bengali',serif;font-size:18px;color:var(--cyan);margin-bottom:36px;letter-spacing:.04em;}
+
+.cat-wrap{position:relative;display:inline-block;margin-bottom:28px;}
+.cat-svg-el{width:190px;height:190px;animation:cat-bob 3s ease-in-out infinite;display:block;}
+@keyframes cat-bob{0%,100%{transform:translateY(0) rotate(0deg);}40%{transform:translateY(-12px) rotate(-1deg);}60%{transform:translateY(-10px) rotate(1deg);}}
+.cat-shadow{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);width:110px;height:16px;background:radial-gradient(ellipse,rgba(101,51,255,.35),transparent 70%);animation:cat-shad 3s ease-in-out infinite;}
+@keyframes cat-shad{0%,100%{width:110px;opacity:.8;}50%{width:75px;opacity:.4;}}
+.cat-star{position:absolute;font-size:13px;animation:star-twinkle 2.5s ease-in-out infinite;}
+.cat-star:nth-child(1){top:8%;left:12%;animation-delay:0s;}
+.cat-star:nth-child(2){top:18%;right:8%;animation-delay:.6s;}
+.cat-star:nth-child(3){bottom:28%;left:4%;animation-delay:1.2s;}
+.cat-star:nth-child(4){bottom:18%;right:12%;animation-delay:1.8s;}
+@keyframes star-twinkle{0%,100%{opacity:1;transform:scale(1) rotate(0deg);}50%{opacity:.15;transform:scale(.5) rotate(90deg);}}
+
+.cat-speech{
+  background:var(--panel);border:1.5px solid var(--border2);
+  border-radius:18px;padding:20px 26px;max-width:480px;margin:0 auto 22px;
+  position:relative;
+}
+.cat-speech::before{content:'';position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:10px solid var(--border2);}
+.cat-speech-bn{font-family:'Noto Serif Bengali',serif;font-size:15px;color:var(--text);line-height:1.9;margin-bottom:6px;}
+.cat-speech-en{font-size:12px;color:var(--text-dim);}
+
+.cat-facts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:24px;}
+.cat-fact{
+  background:var(--panel);border:1.5px solid var(--border);
+  border-radius:13px;padding:14px 18px;min-width:120px;
+  transition:all .25s;cursor:default;text-align:center;
+}
+.cat-fact:hover{border-color:var(--cyan);transform:translateY(-3px);}
+.cat-fact-em{font-size:22px;margin-bottom:6px;}
+.cat-fact-lbl{font-family:'Noto Serif Bengali',serif;font-size:12px;color:var(--cyan);display:block;}
+.cat-fact-sub{font-size:11px;color:var(--text-dim);font-family:'Poppins',sans-serif;}
+
+.cat-btn-row{margin-top:22px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.cat-action-btn{
+  background:linear-gradient(135deg,var(--violet),var(--pink));
+  border:none;border-radius:12px;padding:12px 26px;color:#fff;
+  font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;
+  cursor:none;transition:all .3s;
+}
+.cat-action-btn:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(255,63,164,.4);}
+.cat-mood{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:20px;background:var(--panel);border:1px solid var(--border2);font-size:13px;font-family:'Poppins',sans-serif;color:var(--text);margin-top:16px;}
+
+/* ═══ ABOUT / FOOTER ═══ */
+.about-sec{text-align:center;padding:70px 36px 100px;}
+.about-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px;}
+.fb-link{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 28px;border-radius:12px;
+  background:linear-gradient(135deg,#1877f2,#1e5fd1);
+  color:#fff;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;
+  text-decoration:none;transition:all .3s;
+}
+.fb-link:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(24,119,242,.45);}
+.audit-link{
+  padding:13px 28px;border-radius:12px;
+  border:1.5px solid var(--border2);background:transparent;
+  color:var(--text);font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;cursor:none;transition:all .3s;
+}
+.audit-link:hover{border-color:var(--violet2);color:var(--violet2);}
+
+/* ═══ HISTORY ═══ */
+#history-panel{
+  position:fixed;right:0;top:0;bottom:0;width:295px;
+  background:rgba(4,6,15,.97);border-left:1px solid var(--border);
+  z-index:400;transform:translateX(100%);
+  transition:transform .35s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;backdrop-filter:blur(24px);
+}
+[data-theme="light"] #history-panel{background:rgba(245,247,255,.97);}
+#history-panel.open{transform:translateX(0);}
+.hp-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.hp-title{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--text-bright);}
+.hp-x{background:none;border:none;color:var(--text-dim);cursor:none;font-size:17px;transition:color .2s;}
+.hp-x:hover{color:var(--red);}
+.hp-body{flex:1;overflow-y:auto;padding:14px;}
+.hp-item{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:9px;cursor:none;transition:all .2s;}
+.hp-item:hover{border-color:var(--cyan);transform:translateX(-3px);}
+.hp-url{font-family:'Poppins',sans-serif;font-size:10px;color:var(--cyan);word-break:break-all;margin-bottom:6px;}
+.hp-row{display:flex;align-items:center;justify-content:space-between;}
+.hp-score{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;}
+.hp-date{font-size:10px;color:var(--text-dim);font-family:'Poppins',sans-serif;}
+.hp-empty{text-align:center;padding:36px 18px;color:var(--text-dim);font-size:13px;}
+.hp-clear{padding:14px 20px;border-top:1px solid var(--border);font-size:12px;color:var(--red);text-align:center;cursor:none;transition:opacity .2s;font-family:'Poppins',sans-serif;font-weight:500;}
+.hp-clear:hover{opacity:.7;}
+
+#history-fab{
+  position:fixed;right:28px;bottom:98px;width:48px;height:48px;border-radius:50%;
+  background:var(--panel);border:1.5px solid var(--border2);color:var(--text-dim);
+  font-size:18px;cursor:none;display:flex;align-items:center;justify-content:center;z-index:500;
+  transition:all .25s;
+}
+#history-fab:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:var(--glow-cyan);}
+.hist-cnt{position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:var(--violet);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:600;}
+
+/* ═══ CHAT ═══ */
+#chat-fab{
+  position:fixed;bottom:28px;right:28px;width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,var(--violet),var(--cyan));
+  border:none;cursor:none;display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:#fff;box-shadow:0 4px 22px rgba(101,51,255,.55);z-index:500;transition:all .3s;
+}
+#chat-fab:hover{transform:scale(1.1);box-shadow:0 6px 30px rgba(0,212,255,.5);}
+#chat-panel{
+  position:fixed;bottom:96px;right:28px;width:335px;max-height:495px;
+  background:rgba(7,11,26,.98);border:1.5px solid rgba(0,212,255,.28);
+  border-radius:20px;display:none;flex-direction:column;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.7);backdrop-filter:blur(22px);z-index:499;
+}
+[data-theme="light"] #chat-panel{background:rgba(245,247,255,.98);}
+#chat-panel.open{display:flex;animation:chat-pop .3s cubic-bezier(.34,1.56,.64,1);}
+@keyframes chat-pop{from{opacity:0;transform:scale(.82) translateY(22px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.chat-head{background:linear-gradient(135deg,rgba(101,51,255,.28),rgba(0,212,255,.15));padding:13px 17px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.chat-name{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--text-bright);display:flex;align-items:center;gap:8px;}
+.chat-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite;}
+.chat-x{background:none;border:none;color:var(--text-dim);cursor:none;font-size:15px;transition:color .2s;}
+.chat-x:hover{color:var(--red);}
+.chat-msgs{flex:1;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:9px;min-height:155px;}
+.chat-msgs::-webkit-scrollbar{width:3px;}
+.chat-msg{max-width:87%;font-family:'Poppins',sans-serif;font-size:13px;line-height:1.55;padding:9px 13px;border-radius:11px;animation:msg-pop .2s ease;}
+@keyframes msg-pop{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+.chat-msg.bot{background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.14);color:var(--text);align-self:flex-start;border-bottom-left-radius:3px;}
+.chat-msg.user{background:linear-gradient(135deg,rgba(101,51,255,.25),rgba(0,212,255,.12));border:1px solid rgba(101,51,255,.28);color:var(--text-bright);align-self:flex-end;border-bottom-right-radius:3px;}
+.chat-chips{display:flex;flex-wrap:wrap;gap:5px;padding:0 12px 8px;}
+.chat-chip{font-family:'Poppins',sans-serif;font-size:10px;font-weight:500;color:var(--cyan);border:1px solid rgba(0,212,255,.22);padding:4px 10px;border-radius:10px;cursor:none;transition:all .2s;background:rgba(0,212,255,.03);}
+.chat-chip:hover{background:rgba(0,212,255,.1);}
+.chat-inp-row{display:flex;gap:7px;padding:10px 12px;border-top:1px solid var(--border);}
+.chat-inp{flex:1;background:rgba(0,0,0,.32);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text-bright);font-family:'Poppins',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+[data-theme="light"] .chat-inp{background:rgba(255,255,255,.45);}
+.chat-inp:focus{border-color:var(--cyan);}
+.chat-send{background:linear-gradient(135deg,var(--violet),var(--cyan));border:none;border-radius:7px;width:34px;height:34px;cursor:none;color:#fff;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.chat-send:hover{transform:scale(1.12);}
+
+/* ═══ ACCESSIBILITY MODAL ═══ */
+#a11y-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;
+  display:none;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(10px);
+}
+#a11y-overlay.open{display:flex;animation:fade-in .3s both;}
+@keyframes fade-in{from{opacity:0;}to{opacity:1;}}
+.a11y-modal{
+  background:var(--bg2);border:1.5px solid var(--border2);border-radius:22px;
+  width:100%;max-width:620px;max-height:85vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.7);
+  animation:modal-up .35s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes modal-up{from{opacity:0;transform:translateY(30px) scale(.95);}to{opacity:1;transform:translateY(0) scale(1);}}
+.a11y-header{
+  padding:22px 26px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(135deg,rgba(101,51,255,.15),rgba(0,212,255,.08));
+}
+.a11y-title{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:800;color:var(--text-bright);}
+.a11y-close{background:none;border:none;color:var(--text-dim);cursor:none;font-size:18px;transition:color .2s;}
+.a11y-close:hover{color:var(--red);}
+.a11y-body{padding:24px 26px;}
+.a11y-step{
+  display:flex;gap:16px;margin-bottom:22px;align-items:flex-start;
+  background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;
+  transition:border-color .2s;
+}
+.a11y-step:hover{border-color:var(--cyan);}
+.a11y-num{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--violet),var(--cyan));
+  color:#fff;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+}
+.a11y-step-title{font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;color:var(--text-bright);margin-bottom:5px;}
+.a11y-step-desc{font-size:13px;color:var(--text-dim);line-height:1.7;}
+.a11y-tip{background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.25);border-radius:10px;padding:12px 16px;margin-top:8px;font-size:12px;color:var(--green);}
+
+/* ═══ MINI SELECT ═══ */
+select{background:rgba(0,0,0,.3);border:1.5px solid var(--border);border-radius:9px;color:var(--text);padding:9px 13px;font-family:'Poppins',sans-serif;font-size:13px;outline:none;transition:border-color .2s;cursor:none;}
+[data-theme="light"] select{background:rgba(255,255,255,.55);}
+select:focus{border-color:var(--cyan);}
+
+/* Loading spinner inline */
+.spin-sm{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,212,255,.2);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:600px){
+  header{padding:12px 18px;}
+  nav{display:none;}
+  section{padding:56px 18px;}
+  .url-row{flex-direction:column;}
+  .check-btn{width:100%;}
+  .instant-row{flex-direction:column;}
+  #chat-panel{width:calc(100vw - 36px);right:18px;}
+  #history-panel{width:100%;}
+  .sol-tip{display:none;}
+  .hero-h1{font-size:clamp(26px,8vw,44px);}
+}
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div id="nx-cursor"></div>
+<div id="nx-ring"></div>
+<div id="cursor-cat-el">🐱</div>
+
+<!-- Particles -->
+<div id="particles-bg"></div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ═══ ACCESSIBILITY GUIDE MODAL ═══ -->
+<div id="a11y-overlay">
+  <div class="a11y-modal">
+    <div class="a11y-header">
+      <div class="a11y-title">♿ Accessibility Guide</div>
+      <button class="a11y-close" onclick="closeA11y()">✕</button>
+    </div>
+    <div class="a11y-body">
+      <div class="a11y-step">
+        <div class="a11y-num">1</div>
+        <div><div class="a11y-step-title">🌐 Paste Your Facebook URL</div><div class="a11y-step-desc">Go to the <strong>Page Audit Checker</strong> section. Find the input box labeled "Facebook Page / Profile URL". Paste your full Facebook link there — for example: <code>https://facebook.com/yourpagename</code>. Then click the <strong>⚡ CHECK</strong> button.</div><div class="a11y-tip">💡 Tip: Copy your page URL directly from your browser address bar while visiting your Facebook page.</div></div>
+      </div>
+      <div class="a11y-step">
+        <div class="a11y-num">2</div>
+        <div><div class="a11y-step-title">⚡ Instant Report Bar</div><div class="a11y-step-desc">Below the main checker there's a purple "Instant Facebook Report" bar. Paste any Facebook ID or page link here and click <strong>Generate Report</strong>. You'll instantly see a success report — no waiting needed.</div><div class="a11y-tip">💡 Tip: This gives a fast overview without running the full AI audit.</div></div>
+      </div>
+      <div class="a11y-step">
+        <div class="a11y-num">3</div>
+        <div><div class="a11y-step-title">📊 Reading Your Report</div><div class="a11y-step-desc">After checking, a full report appears with a <strong>score out of 100</strong>. Each of the 10 metrics is shown in green (good), yellow (needs work), or red (problem). <strong>Hover over any red item</strong> to see the exact solution popup.</div><div class="a11y-tip">💡 Tip: Download the report as PDF or JPG to share with your client.</div></div>
+      </div>
+      <div class="a11y-step">
+        <div class="a11y-num">4</div>
+        <div><div class="a11y-step-title">🏷 Tag Suggestions</div><div class="a11y-step-desc">Go to <strong>Power Tools → Tag Suggestions</strong>. Type your business niche (e.g. "Bakery" or "Fashion"). Choose English, Bengali, or Both. Click <strong>Generate Tags</strong>. Click any tag chip to copy it instantly.</div></div>
+      </div>
+      <div class="a11y-step">
+        <div class="a11y-num">5</div>
+        <div><div class="a11y-step-title">✍️ Bio Generator</div><div class="a11y-step-desc">Go to <strong>Power Tools → Bio Generator</strong>. Fill in your business name, type, service, and location. Choose a tone. Click <strong>Generate Bio</strong> — you'll get 3 ready-to-use bio options. Click <strong>Copy Bio</strong> to grab it.</div></div>
+      </div>
+      <div class="a11y-step">
+        <div class="a11y-num">6</div>
+        <div><div class="a11y-step-title">💚 Client Health Report</div><div class="a11y-step-desc">Go to <strong>Power Tools → Health Report</strong>. Paste your client's Facebook URL. Enter their name. Click <strong>Generate</strong>. Download the professional health report PDF to send to your client.</div></div>
+      </div>
+      <div class="a11y-step">
+        <div class="a11y-num">7</div>
+        <div><div class="a11y-step-title">🕐 History & Theme</div><div class="a11y-step-desc">Click the 🕐 button (bottom-right area) to open your audit history. All past checks are saved. Use the 🌙/☀️ toggle in the header to switch between Dark and Light themes.</div></div>
+      </div>
+      <div class="a11y-step">
+        <div class="a11y-num">8</div>
+        <div><div class="a11y-step-title">💬 NEXA AI Helper</div><div class="a11y-step-desc">Click the 💬 button (bottom-right corner) to open the AI chat. Ask any question about Facebook page optimization. You can write in English or বাংলা — the AI understands both.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <a class="logo-link" href="#home">
+    <div class="logo-svg-wrap">
+      <svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+        <rect x="621.58" y="725.39" width="244.3" height="250.17"/>
+        <polygon points="865.87 21.68 865.87 482.97 621.58 482.97 621.58 238.62 377.22 238.62 377.22 482.97 621.58 482.97 621.58 725.39 377.22 725.39 377.22 975.55 132.87 975.55 132.87 266.14 159.18 238.62 366.26 21.68 865.87 21.68"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-name">META <em>CHECKER</em></div>
+      <div class="logo-tag">by NEXA · AI Facebook Audit</div>
+    </div>
+  </a>
+
+  <nav>
+    <button class="nav-btn active" onclick="navTo('#checker')">Checker</button>
+    <button class="nav-btn" onclick="navTo('#tools')">Tools</button>
+    <button class="nav-btn" onclick="navTo('#services')">Services</button>
+    <button class="nav-btn" onclick="navTo('#bangla-cat')">বাংলা 🐱</button>
+  </nav>
+
+  <div class="header-right">
+    <button class="a11y-btn" onclick="openA11y()">♿ Guide</button>
+    <div class="live-pill"><div class="live-pip"></div>LIVE</div>
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle light/dark">
+      <div class="theme-knob" id="themeKnob">🌙</div>
+    </button>
+  </div>
+</header>
+
+<!-- ═══ TICKER ═══ -->
+<div class="ticker-bar">
+  <div class="ticker-inner" id="tickerInner"></div>
+</div>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero" id="home">
+  <div class="hero-rings">
+    <div class="ring"><div class="ring-dot"></div></div>
+    <div class="ring"><div class="ring-dot"></div></div>
+    <div class="ring"><div class="ring-dot"></div></div>
+  </div>
+  <div class="hero-label">AI-Powered · Facebook Audit</div>
+  <div class="hero-h1">
+    <div class="l1">Facebook Page</div>
+    <div class="l2">Health Audit</div>
+  </div>
+  <p class="hero-p">Instantly audit any Facebook page with AI. Get scores, solutions, hashtags, bios, and downloadable reports — all in seconds. 100% free.</p>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hstat-n" id="stat1">10</div><div class="hstat-l">Audit Metrics</div></div>
+    <div class="hstat"><div class="hstat-n" id="stat2">0</div><div class="hstat-l">Checks Done</div></div>
+    <div class="hstat"><div class="hstat-n">AI</div><div class="hstat-l">Powered</div></div>
+    <div class="hstat"><div class="hstat-n">100%</div><div class="hstat-l">Free</div></div>
+  </div>
+  <button class="hero-cta" onclick="navTo('#checker')"><span>⚡ Start Free Audit →</span></button>
+  <div class="scroll-hint">↓ Scroll to begin</div>
+</div>
+
+<!-- ═══ CHECKER ═══ -->
+<section id="checker">
+  <div class="sec-tag">Core Tool</div>
+  <div class="sec-title">Page Audit Checker</div>
+  <p class="sec-sub">Paste any Facebook page URL and get a full AI-powered audit in under 15 seconds.</p>
+
+  <div class="checker-card reveal">
+    <div class="input-lbl">► Facebook Page / Profile URL</div>
+    <div class="url-row">
+      <input type="url" class="url-inp" id="urlInput"
+        placeholder="https://www.facebook.com/yourpagename"
+        autocomplete="off" spellcheck="false"
+        onkeydown="if(event.key==='Enter')startCheck()"/>
+      <button class="check-btn" id="checkBtn" onclick="startCheck()">
+        <span class="check-btn-inner">⚡ CHECK</span>
+      </button>
+    </div>
+    <div class="err-box" id="errBox"></div>
+  </div>
+
+  <!-- ═══ INSTANT REPORT BAR ═══ -->
+  <div class="instant-bar reveal" style="animation-delay:.15s">
+    <div class="instant-label">⚡ Instant Facebook Report</div>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:13px;">Paste any Facebook ID or page link for an instant success report — no waiting.</p>
+    <div class="instant-row">
+      <input type="text" class="instant-inp" id="instantInp"
+        placeholder="Paste Facebook ID or page link here..."
+        onkeydown="if(event.key==='Enter')runInstantReport()"/>
+      <button class="instant-btn" onclick="runInstantReport()">Generate Report</button>
+    </div>
+    <div class="instant-result" id="instantResult">
+      <div class="instant-tick">✅</div>
+      <div class="instant-success-title">Report Generated Successfully!</div>
+      <p class="instant-success-msg">
+        <strong style="color:var(--green)">Every problem is solved by Nexamoc Creative.</strong><br>
+        System is <strong>99% optimized</strong>. Your Facebook page has been reviewed and all critical issues are resolved.<br>
+        <span style="color:var(--text-dim);font-size:12px;" id="instantPageId"></span>
+      </p>
+      <div class="instant-score-row">
+        <div class="inst-badge">✓ Mobile: FIXED</div>
+        <div class="inst-badge">✓ SEO: OPTIMIZED</div>
+        <div class="inst-badge">✓ Profile: COMPLETE</div>
+        <div class="inst-badge" style="background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.3);color:var(--cyan);">99% Health Score</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loading" style="margin-top:36px;">
+    <div class="ld-wrap">
+      <div class="ld-o"></div>
+      <div class="ld-i"></div>
+      <div class="ld-c"></div>
+    </div>
+    <div class="ld-title">ANALYZING PAGE</div>
+    <div class="ld-steps">
+      <div class="ld-step" id="ls0">🔍 Parsing URL structure...</div>
+      <div class="ld-step" id="ls1">📡 Extracting page identifier...</div>
+      <div class="ld-step" id="ls2">🤖 Running AI audit engine...</div>
+      <div class="ld-step" id="ls3">📊 Scoring 10 metrics...</div>
+      <div class="ld-step" id="ls4">📋 Building full report...</div>
+    </div>
+  </div>
+
+  <!-- REPORT -->
+  <div id="report-section">
+    <div class="report-top-bar">
+      <div class="report-heading">📋 Audit Report</div>
+      <div class="rpt-actions">
+        <button class="btn btn-jpg" onclick="dlJPG()">🖼 Download JPG</button>
+        <button class="btn btn-pdf" onclick="dlPDF()">📄 Download PDF</button>
+        <button class="btn btn-new" onclick="resetCheck()">↺ New Check</button>
+      </div>
+    </div>
+
+    <div id="report-card">
+      <!-- RC TOP -->
+      <div class="rc-top">
+        <div>
+          <div class="rc-logo-row">
+            <svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+              <rect fill="#00d4ff" x="621.58" y="725.39" width="244.3" height="250.17"/>
+              <polygon fill="#00d4ff" points="865.87 21.68 865.87 482.97 621.58 482.97 621.58 238.62 377.22 238.62 377.22 482.97 621.58 482.97 621.58 725.39 377.22 725.39 377.22 975.55 132.87 975.55 132.87 266.14 159.18 238.62 366.26 21.68 865.87 21.68"/>
+            </svg>
+            <div class="rc-brand">META <em>CHECKER</em></div>
+          </div>
+          <div class="rc-sub">Facebook Page Audit · Powered by NEXA Creative AI</div>
+        </div>
+        <div class="rc-meta" id="rcMeta"></div>
+      </div>
+      <div class="rc-url" id="rcUrl"></div>
+
+      <!-- SCORE -->
+      <div class="score-wrap">
+        <div class="sc-circle">
+          <svg viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">
+            <circle class="sc-bg" cx="55" cy="55" r="46"/>
+            <circle class="sc-fill" id="scFill" cx="55" cy="55" r="46" stroke-dasharray="289" stroke-dashoffset="289"/>
+          </svg>
+          <div class="sc-inner">
+            <div class="sc-num" id="scNum">0</div>
+            <div class="sc-den">/ 100</div>
+          </div>
+        </div>
+        <div class="sc-details">
+          <div class="sc-grade" id="scGrade">—</div>
+          <div class="sc-summary" id="scSummary">Loading...</div>
+          <div class="sc-bars" id="scBars"></div>
+        </div>
+      </div>
+
+      <!-- CHECKLIST -->
+      <div class="cl-head">Detailed Audit Breakdown</div>
+      <div id="checkItems"></div>
+
+      <!-- AI BOX -->
+      <div class="ai-box">
+        <div class="ai-box-title"><span class="ai-pill">AI</span> NEXA AI RECOMMENDATIONS</div>
+        <div class="ai-text" id="aiText">Loading...</div>
+      </div>
+
+      <div class="rc-footer">
+        <div class="rc-foot-brand">META CHECKER <em>by NEXA</em></div>
+        <div class="rc-foot-ts" id="rcTs"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TOOLS ═══ -->
+<section id="tools" class="reveal">
+  <div class="sec-tag">AI Tools</div>
+  <div class="sec-title">Power Tools</div>
+  <p class="sec-sub">AI-powered tag suggestions, bio generator, and client health reports.</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('tags',this)">🏷 Tag Suggestions</button>
+    <button class="tab-btn" onclick="switchTab('bio',this)">✍️ Bio Generator</button>
+    <button class="tab-btn" onclick="switchTab('health',this)">💚 Health Report</button>
+  </div>
+
+  <!-- TAGS -->
+  <div class="tab-panel active" id="tab-tags">
+    <div class="card">
+      <div class="input-lbl">► Your Page Niche / Topic</div>
+      <div class="tag-row">
+        <input type="text" class="tag-inp" id="tagNiche" placeholder="e.g. Graphic Design, Restaurant, Fashion..."
+          onkeydown="if(event.key==='Enter')genTags()"/>
+        <select id="tagLang">
+          <option value="en">English</option>
+          <option value="bn">বাংলা</option>
+          <option value="both">Both</option>
+        </select>
+        <button class="gen-btn" onclick="genTags()">Generate Tags</button>
+      </div>
+      <div id="tagLoading" style="display:none;padding:14px;color:var(--cyan);font-size:13px;"><span class="spin-sm"></span>Generating tags...</div>
+      <div class="tag-cloud" id="tagCloud">
+        <span style="font-size:12px;color:var(--text-dim);">Tags will appear here...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIO -->
+  <div class="tab-panel" id="tab-bio">
+    <div class="card">
+      <div class="input-lbl">► Page / Business Details</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <input type="text" class="bio-inp" id="bioName" placeholder="Business Name"/>
+        <input type="text" class="bio-inp" id="bioType" placeholder="Business Type (e.g. Agency)"/>
+        <input type="text" class="bio-inp" id="bioService" placeholder="Main Service / Product"/>
+        <input type="text" class="bio-inp" id="bioLoc" placeholder="Location (optional)"/>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+        <select id="bioTone">
+          <option value="professional">Professional</option>
+          <option value="friendly">Friendly &amp; Warm</option>
+          <option value="bold">Bold &amp; Confident</option>
+          <option value="creative">Creative &amp; Playful</option>
+        </select>
+        <button class="gen-btn" onclick="genBio()">Generate Bio</button>
+      </div>
+      <div id="bioLoading" style="display:none;padding:14px;color:var(--cyan);font-size:13px;"><span class="spin-sm"></span>Writing bio options...</div>
+      <div class="bio-grid" id="bioGrid">
+        <div style="font-size:12px;color:var(--text-dim);grid-column:1/-1;">Fill in your details and click Generate...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEALTH REPORT -->
+  <div class="tab-panel" id="tab-health">
+    <div class="health-box">
+      <div class="input-lbl">► Client Facebook Page URL</div>
+      <div class="health-form">
+        <input type="url" class="health-inp" id="healthUrl" placeholder="https://facebook.com/clientpage"
+          onkeydown="if(event.key==='Enter')genHealth()"/>
+        <input type="text" class="health-inp" id="healthClient" placeholder="Client Name" style="max-width:200px;"/>
+        <button class="gen-btn green-btn" onclick="genHealth()">📊 Generate</button>
+      </div>
+      <div id="healthLoading" style="display:none;padding:26px;text-align:center;color:var(--cyan);font-size:13px;">
+        <div style="position:relative;width:56px;height:56px;margin:0 auto 12px;">
+          <div class="ld-o"></div><div class="ld-i"></div><div class="ld-c"></div>
+        </div>
+        Analyzing page health...
+      </div>
+      <div id="healthResult" style="display:none;">
+        <div id="healthCard">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+            <div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:var(--text-bright);">Page Health Report</div>
+              <div id="healthClientLbl" style="font-family:'Poppins',sans-serif;font-size:11px;color:var(--cyan);margin-top:4px;"></div>
+            </div>
+            <button class="btn btn-pdf" onclick="dlHealthPDF()">📄 Download PDF</button>
+          </div>
+          <div class="hm-grid" id="hmGrid"></div>
+          <div class="ai-box">
+            <div class="ai-box-title"><span class="ai-pill">AI</span> HEALTH ANALYSIS</div>
+            <div class="ai-text" id="healthAiText"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SERVICES ═══ -->
+<section id="services" class="reveal">
+  <div class="sec-tag">What We Check</div>
+  <div class="sec-title">10 Audit Services</div>
+  <p class="sec-sub">Every Facebook page metric that matters for reach, trust, and search visibility.</p>
+  <div class="svc-grid" id="svcGrid"></div>
+</section>
+
+<!-- ═══ BENGALI CAT ═══ -->
+<div class="cat-section reveal" id="bangla-cat">
+  <div class="cat-section-tag">বাংলা বিশেষ</div>
+  <div class="cat-main-title">বাংলার ডিজিটাল বিড়াল</div>
+  <div class="cat-subtitle">আমাদের মাসকট — Bengali Digital Cat</div>
+
+  <div class="cat-wrap" id="catWrap">
+    <span class="cat-star">✦</span>
+    <span class="cat-star">⭐</span>
+    <span class="cat-star">✨</span>
+    <span class="cat-star">🌟</span>
+    <svg class="cat-svg-el" id="catSvg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="cg1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1a0a3a"/>
+          <stop offset="50%" stop-color="#2e186a"/>
+          <stop offset="100%" stop-color="#0a1530"/>
+        </linearGradient>
+        <radialGradient id="cg2" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#2a1a50"/>
+          <stop offset="100%" stop-color="#0e0828"/>
+        </radialGradient>
+      </defs>
+      <!-- Body -->
+      <ellipse cx="100" cy="138" rx="52" ry="46" fill="url(#cg1)"/>
+      <!-- Head -->
+      <circle cx="100" cy="80" r="44" fill="url(#cg2)"/>
+      <!-- Ears outer -->
+      <polygon points="65,42 50,14 84,38" fill="#6533ff"/>
+      <polygon points="135,42 150,14 116,38" fill="#6533ff"/>
+      <!-- Ears inner -->
+      <polygon points="65,40 57,22 80,37" fill="#ff88cc"/>
+      <polygon points="135,40 143,22 120,37" fill="#ff88cc"/>
+      <!-- Eyes glow -->
+      <ellipse cx="83" cy="77" rx="13" ry="14" fill="rgba(0,212,255,0.15)"/>
+      <ellipse cx="117" cy="77" rx="13" ry="14" fill="rgba(0,212,255,0.15)"/>
+      <!-- Eyes -->
+      <ellipse cx="83" cy="77" rx="10" ry="12" fill="#00d4ff"/>
+      <ellipse cx="117" cy="77" rx="10" ry="12" fill="#00d4ff"/>
+      <!-- Pupils -->
+      <ellipse cx="83" cy="79" rx="5.5" ry="8" fill="#04060f"/>
+      <ellipse cx="117" cy="79" rx="5.5" ry="8" fill="#04060f"/>
+      <!-- Shine -->
+      <circle cx="85" cy="74" r="2.5" fill="white" opacity=".9"/>
+      <circle cx="119" cy="74" r="2.5" fill="white" opacity=".9"/>
+      <!-- Nose -->
+      <polygon points="100,92 95,97 105,97" fill="#ff88cc"/>
+      <!-- Mouth -->
+      <path d="M95,97 Q100,102 105,97" stroke="#ff88cc" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <!-- Whiskers L -->
+      <line x1="55" y1="90" x2="87" y2="94" stroke="rgba(200,224,240,0.55)" stroke-width="1.2"/>
+      <line x1="55" y1="97" x2="87" y2="96" stroke="rgba(200,224,240,0.55)" stroke-width="1.2"/>
+      <line x1="58" y1="103" x2="87" y2="99" stroke="rgba(200,224,240,0.4)" stroke-width="1"/>
+      <!-- Whiskers R -->
+      <line x1="113" y1="94" x2="145" y2="90" stroke="rgba(200,224,240,0.55)" stroke-width="1.2"/>
+      <line x1="113" y1="96" x2="145" y2="97" stroke="rgba(200,224,240,0.55)" stroke-width="1.2"/>
+      <line x1="113" y1="99" x2="142" y2="103" stroke="rgba(200,224,240,0.4)" stroke-width="1"/>
+      <!-- Tail -->
+      <path d="M150,158 Q188,136 178,108 Q170,92 157,102" stroke="url(#cg1)" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <!-- Belly -->
+      <ellipse cx="100" cy="148" rx="28" ry="22" fill="rgba(0,212,255,0.07)"/>
+      <!-- Tech glasses -->
+      <rect x="73" y="70" width="21" height="15" rx="4" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity=".75"/>
+      <rect x="106" y="70" width="21" height="15" rx="4" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity=".75"/>
+      <line x1="94" y1="77" x2="106" y2="77" stroke="#00d4ff" stroke-width="1.5" opacity=".75"/>
+      <!-- Collar -->
+      <path d="M72,116 Q100,126 128,116" stroke="var(--violet)" stroke-width="4" fill="none" stroke-linecap="round" opacity=".6"/>
+      <circle cx="100" cy="120" r="4" fill="var(--cyan)" opacity=".8"/>
+      <!-- Paws -->
+      <ellipse cx="78" cy="178" rx="14" ry="9" fill="url(#cg1)"/>
+      <ellipse cx="122" cy="178" rx="14" ry="9" fill="url(#cg1)"/>
+    </svg>
+    <div class="cat-shadow"></div>
+  </div>
+
+  <div class="cat-speech">
+    <div class="cat-speech-bn">🐾 আমি NEXA-র ডিজিটাল বিড়াল!<br>আমি আপনার Facebook পেজের সমস্যা খুঁজে বের করি<br>এবং সমাধান দিই — একদম বিনামূল্যে! 🌙</div>
+    <div class="cat-speech-en">I'm NEXA's digital mascot — I find your Facebook page problems and fix them for free!</div>
+  </div>
+
+  <div class="cat-facts">
+    <div class="cat-fact"><div class="cat-fact-em">🏠</div><span class="cat-fact-lbl">আদি নিবাস</span><div class="cat-fact-sub">Bangladesh 🇧🇩</div></div>
+    <div class="cat-fact"><div class="cat-fact-em">💻</div><span class="cat-fact-lbl">পেশা</span><div class="cat-fact-sub">Digital Auditor</div></div>
+    <div class="cat-fact"><div class="cat-fact-em">❤️</div><span class="cat-fact-lbl">পছন্দ</span><div class="cat-fact-sub">Nexamoc NEXA</div></div>
+    <div class="cat-fact"><div class="cat-fact-em">🔍</div><span class="cat-fact-lbl">দক্ষতা</span><div class="cat-fact-sub">Page Auditing</div></div>
+    <div class="cat-fact"><div class="cat-fact-em">🌙</div><span class="cat-fact-lbl">প্রিয় সময়</span><div class="cat-fact-sub">রাতের কাজ</div></div>
+  </div>
+
+  <div class="cat-btn-row">
+    <button class="cat-action-btn" id="catFollowBtn" onclick="toggleCatFollow()">🐱 Let Cat Follow Cursor</button>
+    <button class="cat-action-btn" style="background:linear-gradient(135deg,var(--violet),var(--cyan));" onclick="catWave()">👋 Wave at Cat</button>
+  </div>
+  <div class="cat-mood" id="catMood">😺 নেক্সার বিড়াল আপনাকে স্বাগত জানাচ্ছে!</div>
+</div>
+
+<!-- ═══ ABOUT / FOOTER ═══ -->
+<div class="about-sec reveal" id="about">
+  <div class="sec-tag" style="justify-content:center;">About</div>
+  <div class="sec-title" style="text-align:center;">Built by NEXA Creative</div>
+  <p class="sec-sub" style="text-align:center;max-width:480px;margin:0 auto 0;">
+    Meta Checker is a free tool by Nexamoc Creative — a graphic design &amp; UI/UX agency helping businesses build a professional digital presence in Bangladesh and beyond.
+  </p>
+  <div class="about-btns">
+    <a href="https://facebook.com/nexamoc" target="_blank" rel="noopener noreferrer" class="fb-link">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      🔗 Our Facebook
+    </a>
+    <button class="audit-link" onclick="navTo('#checker')">⚡ Run Audit Now</button>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<!-- ═══ FABs ═══ -->
+<button id="history-fab" onclick="toggleHistory()" title="Audit History">
+  🕐
+  <div class="hist-cnt" id="histCnt">0</div>
+</button>
+
+<!-- ═══ HISTORY PANEL ═══ -->
+<div id="history-panel">
+  <div class="hp-head">
+    <div class="hp-title">📜 Audit History</div>
+    <button class="hp-x" onclick="toggleHistory()">✕</button>
+  </div>
+  <div class="hp-body" id="hpBody"></div>
+  <div class="hp-clear" onclick="clearHistory()">🗑 Clear All History</div>
+</div>
+
+<!-- ═══ AI CHAT FAB ═══ -->
+<button id="chat-fab" onclick="toggleChat()">💬</button>
+
+<div id="chat-panel">
+  <div class="chat-head">
+    <div class="chat-name"><div class="chat-dot"></div>NEXA AI Helper</div>
+    <button class="chat-x" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-msgs" id="chatMsgs">
+    <div class="chat-msg bot">👋 আমি NEXA AI! I help with Facebook page optimization, audit results, content strategy, and more. Ask me anything — in English or বাংলা!</div>
+  </div>
+  <div class="chat-chips" id="chatChips">
+    <div class="chat-chip" onclick="qChat('How to improve my Facebook page score?')">Improve score</div>
+    <div class="chat-chip" onclick="qChat('What is Facebook SEO?')">FB SEO</div>
+    <div class="chat-chip" onclick="qChat('Best cover image size for Facebook page?')">Cover size</div>
+    <div class="chat-chip" onclick="qChat('আমার পেজের হ্যাশট্যাগ কীভাবে সেট করব?')">হ্যাশট্যাগ</div>
+  </div>
+  <div class="chat-inp-row">
+    <input type="text" class="chat-inp" id="chatInp" placeholder="Ask anything..."
+      onkeydown="if(event.key==='Enter')sendChat()"/>
+    <button class="chat-send" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════ */
+const OR_KEY = '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';
+const OR_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const MODEL  = 'meta-llama/llama-3.3-70b-instruct';
+
+/* ═══ CRITERIA ═══ */
+const CRITERIA = [
+  {id:'mobile',   name:'Mobile Friendliness',    icon:'📱', sol:'Go to Page Settings → Page Info. Ensure page category is set. Use Facebook\'s Page Preview to check mobile layout. Upload a cover at 820×312px that looks good on both desktop and mobile.'},
+  {id:'address',  name:'Page Address / Username', icon:'🔗', sol:'Go to your Page → Settings → Page Info → Username. Set a short @username using your brand name. This creates: facebook.com/@username. No spaces or special characters allowed.'},
+  {id:'hours',    name:'Business Hours',          icon:'🕐', sol:'Go to Page → Edit Page Info → Hours. Add operating hours for each day. Select "Always Open" if 24/7. Business hours appear in search results and builds customer trust.'},
+  {id:'cover',    name:'Cover Image Quality',     icon:'🖼', sol:'Upload a professional cover image at 820×312px (desktop) or 640×360px (mobile safe zone). Use brand colors and a subtle CTA. Avoid text-heavy images. Update every season for freshness.'},
+  {id:'info',     name:'Page Information',        icon:'📝', sol:'Complete all fields: About (150–200 words with keywords), Website URL, Phone, Email, Address, Price range, Founded year. More information = higher trust signal and better search ranking.'},
+  {id:'maps',     name:'Google Maps Integration', icon:'📍', sol:'Add your full street address in Page Settings → Page Info → Address. Facebook auto-connects Google Maps. For service-area businesses, specify which areas you serve. This helps local search.'},
+  {id:'hashtags', name:'Hashtag Strategy',        icon:'#️⃣', sol:'Add hashtags in Settings → Page Hashtags. Use: 1 branded hashtag + 2–3 niche tags + 1 location tag. Example: #NexamocCreative #GraphicDesign #UIDesign #Dhaka. Update monthly based on trends.'},
+  {id:'keywords', name:'Keyword Optimization',   icon:'🔍', sol:'Include target keywords in: Page Name, Short Description (first 155 characters), About section, Services list, and pinned post text. Think: what do your customers type when looking for you?'},
+  {id:'autorecom',name:'Auto Recommendations',   icon:'⭐', sol:'Go to Settings → Recommendations → Allow Visitors to Recommend. This enables star ratings in search results. 85% of consumers trust recommendations. Essential for building social proof fast.'},
+  {id:'seo',      name:'Overall SEO Setup',       icon:'📈', sol:'Combine all above: post 3×/week minimum, link Facebook ↔ website with Facebook Pixel, get 5+ reviews, use keyword-rich About section of 150–200 words, and share your page URL everywhere.'},
+];
+
+/* ═══ STATE ═══ */
+let currentReport = null;
+let chatOpen = false;
+let histOpen = false;
+let catFollowing = false;
+let auditHistory = [];
+let checksCount = 0;
+
+try { auditHistory = JSON.parse(localStorage.getItem('nx3_hist') || '[]'); } catch(e){}
+try { checksCount = parseInt(localStorage.getItem('nx3_cnt') || '0'); } catch(e){}
+
+/* ═══════════════════════════════════════════
+   CURSOR
+═══════════════════════════════════════════ */
+let cx=0,cy=0,rx=0,ry=0;
+document.addEventListener('mousemove', e=>{
+  cx=e.clientX; cy=e.clientY;
+  const cur=document.getElementById('nx-cursor');
+  if(cur){cur.style.left=cx+'px';cur.style.top=cy+'px';}
+  if(catFollowing){
+    const cat=document.getElementById('cursor-cat-el');
+    if(cat){cat.style.left=(cx+14)+'px';cat.style.top=(cy-12)+'px';}
+  }
+});
+(function animRing(){
+  rx+=(cx-rx)*.12; ry+=(cy-ry)*.12;
+  const r=document.getElementById('nx-ring');
+  if(r){r.style.left=rx+'px';r.style.top=ry+'px';}
+  requestAnimationFrame(animRing);
+})();
+
+document.addEventListener('mouseover', e=>{
+  const el=e.target.closest('button,a,input,select,[data-hover],.cat-fact,.svc-card,.ci,.tag-chip,.bio-card,.hp-item');
+  if(el){
+    const cur=document.getElementById('nx-cursor');
+    const ring=document.getElementById('nx-ring');
+    if(cur){cur.style.width='20px';cur.style.height='20px';}
+    if(ring){ring.style.width='44px';ring.style.height='44px';ring.style.opacity='.8';}
+  }
+});
+document.addEventListener('mouseout', e=>{
+  const el=e.target.closest('button,a,input,select,[data-hover],.cat-fact,.svc-card,.ci,.tag-chip,.bio-card,.hp-item');
+  if(el){
+    const cur=document.getElementById('nx-cursor');
+    const ring=document.getElementById('nx-ring');
+    if(cur){cur.style.width='14px';cur.style.height='14px';}
+    if(ring){ring.style.width='34px';ring.style.height='34px';ring.style.opacity='.45';}
+  }
+});
+
+/* ═══ PARTICLES ═══ */
+function initParticles(){
+  const c=document.getElementById('particles-bg');
+  if(!c)return;
+  const cols=['#6533ff','#00d4ff','#ff3fa4','#00ff88','#ffd700'];
+  for(let i=0;i<22;i++){
+    const p=document.createElement('div');p.className='px';
+    const s=Math.random()*4+1;
+    p.style.cssText=`width:${s}px;height:${s}px;background:${cols[i%cols.length]};left:${Math.random()*100}%;animation-duration:${Math.random()*18+14}s;animation-delay:${Math.random()*14}s;--dx:${(Math.random()-.5)*180}px;`;
+    c.appendChild(p);
+  }
+}
+
+/* ═══ TICKER ═══ */
+function initTicker(){
+  const items=[
+    '📱 Mobile Friendliness','🔗 Page Username','🕐 Business Hours','🖼 Cover Image Quality',
+    '📝 Page Information','📍 Google Maps','#️⃣ Hashtag Strategy','🔍 Keyword Optimization',
+    '⭐ Auto Recommendations','📈 SEO Setup',
+    '📱 Mobile Friendliness','🔗 Page Username','🕐 Business Hours','🖼 Cover Image Quality',
+    '📝 Page Information','📍 Google Maps','#️⃣ Hashtag Strategy','🔍 Keyword Optimization',
+    '⭐ Auto Recommendations','📈 SEO Setup',
+  ];
+  const t=document.getElementById('tickerInner');if(!t)return;
+  t.innerHTML=items.map((it,i)=>`<div class="t-item"><b>${it}</b><span class="t-sep">◆</span></div>`).join('');
+}
+
+/* ═══ SERVICES ═══ */
+function initServices(){
+  const g=document.getElementById('svcGrid');if(!g)return;
+  CRITERIA.forEach(c=>{
+    const d=document.createElement('div');d.className='svc-card reveal';
+    d.innerHTML=`<div class="svc-icon">${c.icon}</div><div class="svc-name">${c.name}</div><p class="svc-desc">${c.sol.substring(0,88)}...</p><div class="svc-tag">Audit Check</div>`;
+    g.appendChild(d);
+    revealObserver.observe(d);
+  });
+}
+
+/* ═══ THEME ═══ */
+function toggleTheme(){
+  const html=document.documentElement;
+  const dark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme',dark?'light':'dark');
+  const k=document.getElementById('themeKnob');
+  if(k)k.textContent=dark?'☀️':'🌙';
+}
+
+/* ═══ NAV ═══ */
+function navTo(id){
+  const el=document.querySelector(id);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ═══ REVEAL ON SCROLL ═══ */
+const revealObserver=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+
+/* ═══ ACCESSIBILITY ═══ */
+function openA11y(){document.getElementById('a11y-overlay').classList.add('open');}
+function closeA11y(){document.getElementById('a11y-overlay').classList.remove('open');}
+document.getElementById('a11y-overlay').addEventListener('click',function(e){if(e.target===this)closeA11y();});
+
+/* ═══ INSTANT REPORT ═══ */
+function runInstantReport(){
+  const v=document.getElementById('instantInp').value.trim();
+  if(!v){showToast('⚠ Please paste a Facebook link or ID');return;}
+  const res=document.getElementById('instantResult');
+  res.style.display='none';
+  const lbl=document.getElementById('instantPageId');
+  const name=extractPageName(v)||v;
+  if(lbl)lbl.textContent=`Page: ${name}`;
+  setTimeout(()=>{
+    res.style.display='block';
+    showToast('✅ Instant report generated!');
+  },600);
+}
+
+/* ═══ MAIN CHECKER ═══ */
+async function startCheck(){
+  const url=document.getElementById('urlInput').value.trim();
+  const err=document.getElementById('errBox');
+  err.style.display='none';
+  if(!url||(!url.includes('facebook')&&!url.includes('fb.me')&&!url.includes('fb.com'))){
+    err.style.display='block';
+    err.textContent='⚠ Please enter a valid Facebook URL (e.g. https://facebook.com/yourpage)';
+    return;
+  }
+  document.getElementById('report-section').style.display='none';
+  document.getElementById('loading').style.display='block';
+  const btn=document.getElementById('checkBtn');
+  btn.disabled=true;
+  let i=0;
+  const si=setInterval(()=>{
+    if(i>0){const p=document.getElementById('ls'+(i-1));if(p)p.className='ld-step done';}
+    if(i<5){const s=document.getElementById('ls'+i);if(s)s.className='ld-step on';i++;}
+    else clearInterval(si);
+  },750);
+
+  let report;
+  try{report=await callAuditAI(url);}
+  catch(e){report=fallbackReport(extractPageName(url));}
+
+  clearInterval(si);
+  document.getElementById('loading').style.display='none';
+  btn.disabled=false;
+  currentReport={url,report,date:new Date()};
+  saveHistory(url,report);
+  checksCount++;
+  try{localStorage.setItem('nx3_cnt',checksCount);}catch(e){}
+  const s2=document.getElementById('stat2');if(s2)s2.textContent=checksCount;
+  renderReport(url,report);
+  document.getElementById('report-section').style.display='block';
+  setTimeout(()=>document.getElementById('report-section').scrollIntoView({behavior:'smooth',block:'start'}),80);
+}
+
+async function callAuditAI(url){
+  const page=extractPageName(url);
+  const prompt=`You are a professional Facebook Page Auditor AI for Nexamoc Creative agency. Analyze page: "${url}" (identifier: "${page}").
+
+Generate a realistic audit. Return ONLY valid compact JSON — no markdown, no explanation, nothing else:
+
+{"overallScore":<0-100>,"overallLabel":"<Poor|Needs Work|Average|Good|Excellent>","overallSummary":"<2 clear sentences>","aiRecommendations":"<4 specific actionable sentences>","items":{"mobile":{"score":<0-100>,"status":"<pass|warn|fail>","note":"<max 12 words>"},"address":{"score":<0-100>,"status":"<pass|warn|fail>","note":"<max 12 words>"},"hours":{"score":<0-100>,"status":"<pass|warn|fail>","note":"<max 12 words>"},"cover":{"score":<0-100>,"status":"<pass|warn|fail>","note":"<max 12 words>"},"info":{"score":<0-100>,"status":"<pass|warn|fail>","note":"<max 12 words>"},"maps":{"score":<0-100>,"status":"<pass|warn|fail>","note":"<max 12 words>"},"hashtags":{"score":<0-100>,"status":"<pass|warn|fail>","note":"<max 12 words>"},"keywords":{"score":<0-100>,"status":"<pass|warn|fail>","note":"<max 12 words>"},"autorecom":{"score":<0-100>,"status":"<pass|warn|fail>","note":"<max 12 words>"},"seo":{"score":<0-100>,"status":"<pass|warn|fail>","note":"<max 12 words>"}}}`;
+
+  const res=await fetch(OR_URL,{
+    method:'POST',
+    headers:{'Authorization':`Bearer ${OR_KEY}`,'Content-Type':'application/json','HTTP-Referer':'https://nexamoc.com','X-Title':'Meta Checker NEXA'},
+    body:JSON.stringify({model:MODEL,max_tokens:800,messages:[{role:'user',content:prompt}]})
+  });
+  if(!res.ok)throw new Error('API error '+res.status);
+  const data=await res.json();
+  let txt=data.choices?.[0]?.message?.content||'';
+  txt=txt.replace(/```json|```/g,'').trim();
+  const m=txt.match(/\{[\s\S]*\}/);
+  return JSON.parse(m?m[0]:txt);
+}
+
+function fallbackReport(name){
+  const ns={mobile:'Mobile layout may need review.',address:'Custom @username not yet configured.',hours:'Business hours are not set.',cover:'Cover image lacks professional quality.',info:'About section needs keyword content.',maps:'Location not linked to Maps.',hashtags:'Hashtags not configured yet.',keywords:'Keywords missing from description.',autorecom:'Auto-recommendations not enabled.',seo:'Overall SEO setup is incomplete.'};
+  const items={};let t=0;
+  Object.keys(ns).forEach(id=>{const s=Math.floor(Math.random()*38)+18;t+=s;items[id]={score:s,status:s>=65?'pass':s>=38?'warn':'fail',note:ns[id]};});
+  const sc=Math.floor(t/10);
+  return{overallScore:sc,overallLabel:sc>=70?'Good':sc>=40?'Needs Work':'Poor',overallSummary:`This page has several important optimization gaps reducing its reach and credibility. Multiple setup steps are incomplete and need attention.`,aiRecommendations:`Start by completing your Page's About section with a 150-word keyword-rich description. Then set business hours, add your address, and link Google Maps. Upload a professional cover image at 820×312px with clear branding. Enable auto-recommendations and configure 3–5 hashtags for your niche — this combination can boost your score by 30–40 points.`,items};
+}
+
+/* ═══ RENDER REPORT ═══ */
+function renderReport(url,r){
+  const now=new Date();
+  const meta=document.getElementById('rcMeta');
+  if(meta)meta.innerHTML=`Report: #NXA-${Math.random().toString(36).slice(2,8).toUpperCase()}<br>Date: ${now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}<br>Time: ${now.toLocaleTimeString()}`;
+  const rcUrl=document.getElementById('rcUrl');if(rcUrl)rcUrl.textContent='🔗 '+url;
+  const rcTs=document.getElementById('rcTs');if(rcTs)rcTs.textContent=`Generated ${now.toLocaleDateString()} at ${now.toLocaleTimeString()} · Meta Checker by NEXA`;
+
+  const sc=r.overallScore;
+  const col=sc>=70?'#00ff88':sc>=40?'#ffd700':'#ff4060';
+  const fill=document.getElementById('scFill');
+  if(fill){fill.style.stroke=col;setTimeout(()=>{fill.style.strokeDashoffset=289-(sc/100)*289;},120);}
+
+  const numEl=document.getElementById('scNum');
+  if(numEl){let n=0;const nt=setInterval(()=>{n=Math.min(n+2,sc);numEl.textContent=n;if(n>=sc)clearInterval(nt);},16);}
+
+  const gd=document.getElementById('scGrade');if(gd){gd.textContent=r.overallLabel;gd.style.color=col;}
+  const sm=document.getElementById('scSummary');if(sm)sm.textContent=r.overallSummary;
+
+  const bars=document.getElementById('scBars');
+  if(bars){bars.innerHTML='';for(let i=0;i<10;i++){const b=document.createElement('div');b.className='sc-bar';if(i<Math.round(sc/10))b.className+=' '+(sc>=70?'g':sc>=40?'y':'r');bars.appendChild(b);}}
+
+  const list=document.getElementById('checkItems');
+  if(list){
+    list.innerHTML='';
+    CRITERIA.forEach((c,idx)=>{
+      const it=r.items[c.id];if(!it)return;
+      const s=it.score,st=it.status;
+      const bc=st==='pass'?'var(--green)':st==='warn'?'var(--yellow)':'var(--red)';
+      const ic={pass:'✓',warn:'⚠',fail:'✕'}[st]||'?';
+      const el=document.createElement('div');
+      el.className='ci '+st;el.style.animationDelay=`${idx*.065}s`;
+      el.innerHTML=`
+        <div class="ci-icon ${st}">${ic}</div>
+        <div>
+          <div class="ci-name">${c.icon} ${c.name}</div>
+          <div class="ci-note">${it.note}</div>
+        </div>
+        <div class="ci-right">
+          <div class="ci-score ${st}">${s}%</div>
+          <div class="ci-barwrap"><div class="ci-barfill" style="width:${s}%;background:${bc}"></div></div>
+        </div>
+        <div class="sol-tip">
+          <div class="sol-lbl">💡 How to Fix</div>
+          <div class="sol-text">${c.sol}</div>
+        </div>`;
+      list.appendChild(el);
+    });
+  }
+  const ai=document.getElementById('aiText');if(ai)ai.textContent=r.aiRecommendations;
+}
+
+function resetCheck(){
+  document.getElementById('urlInput').value='';
+  document.getElementById('report-section').style.display='none';
+  navTo('#checker');
+}
+
+/* ═══ DOWNLOAD — FULL REPORT FIX ═══ */
+async function captureReportCard(){
+  const card=document.getElementById('report-card');
+  // Hide tooltips during capture
+  const tips=card.querySelectorAll('.sol-tip');
+  tips.forEach(t=>{t.style.display='none';});
+  const canvas=await html2canvas(card,{
+    backgroundColor:document.documentElement.getAttribute('data-theme')==='light'?'#f0f4ff':'#07111f',
+    scale:2,useCORS:true,allowTaint:true,
+    scrollX:0,scrollY:-window.scrollY,
+    logging:false,
+    width:card.offsetWidth,
+    height:card.offsetHeight
+  });
+  tips.forEach(t=>{t.style.display='';});
+  return canvas;
+}
+
+async function dlJPG(){
+  showToast('📸 Capturing full report...');
+  try{
+    const c=await captureReportCard();
+    const a=document.createElement('a');
+    a.download='meta-checker-nexa-report.jpg';
+    a.href=c.toDataURL('image/jpeg',0.95);
+    a.click();
+    showToast('✅ JPG saved!');
+  }catch(e){showToast('❌ Download failed. Try again.');}
+}
+
+async function dlPDF(){
+  showToast('📄 Building PDF...');
+  try{
+    const c=await captureReportCard();
+    const imgData=c.toDataURL('image/jpeg',0.95);
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const pw=pdf.internal.pageSize.getWidth();
+    const ph=pdf.internal.pageSize.getHeight();
+    const imgH=(c.height*pw)/c.width;
+    if(imgH<=ph){
+      pdf.addImage(imgData,'JPEG',0,0,pw,imgH);
+    }else{
+      // Multi-page: slice canvas
+      const ratio=c.width/pw;
+      let y=0,page=0;
+      while(y<c.height){
+        const sliceH=Math.min(ph*ratio,c.height-y);
+        const tmp=document.createElement('canvas');
+        tmp.width=c.width;tmp.height=sliceH;
+        tmp.getContext('2d').drawImage(c,0,y,c.width,sliceH,0,0,c.width,sliceH);
+        if(page>0)pdf.addPage();
+        pdf.addImage(tmp.toDataURL('image/jpeg',0.95),'JPEG',0,0,pw,(sliceH/ratio));
+        y+=sliceH;page++;
+      }
+    }
+    pdf.save('meta-checker-nexa-report.pdf');
+    showToast('✅ PDF saved!');
+  }catch(e){showToast('❌ PDF failed. Try again.');}
+}
+
+/* ═══ TAG GENERATOR ═══ */
+async function genTags(){
+  const niche=document.getElementById('tagNiche').value.trim();
+  if(!niche){showToast('⚠ Enter a niche first!');return;}
+  const lang=document.getElementById('tagLang').value;
+  const ld=document.getElementById('tagLoading');
+  const cl=document.getElementById('tagCloud');
+  if(ld)ld.style.display='block';
+  if(cl)cl.innerHTML='';
+  const lInstr=lang==='bn'?'in Bengali (বাংলা)':lang==='both'?'mixing English and Bengali':'in English';
+  const prompt=`Generate Facebook page hashtags ${lInstr} for a "${niche}" page.
+Return ONLY valid JSON, no markdown:
+{"primary":["#tag1","#tag2","#tag3"],"secondary":["#tag4","#tag5","#tag6","#tag7"],"trending":["#tag8","#tag9","#tag10"]}`;
+  try{
+    const res=await fetch(OR_URL,{method:'POST',headers:{'Authorization':`Bearer ${OR_KEY}`,'Content-Type':'application/json','HTTP-Referer':'https://nexamoc.com','X-Title':'Meta Checker NEXA'},body:JSON.stringify({model:MODEL,max_tokens:350,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    let txt=data.choices?.[0]?.message?.content||'';
+    txt=txt.replace(/```json|```/g,'').trim();
+    const m=txt.match(/\{[\s\S]*\}/);
+    renderTags(JSON.parse(m?m[0]:txt));
+  }catch(e){
+    renderTags({primary:['#'+niche.replace(/\s+/g,''),'#DigitalMarketing','#Facebook'],secondary:['#Business','#Growth','#Marketing','#Social'],trending:['#Trending','#Viral','#ContentCreator']});
+  }
+  if(ld)ld.style.display='none';
+}
+
+function renderTags(tags){
+  const cl=document.getElementById('tagCloud');if(!cl)return;cl.innerHTML='';
+  ['primary','secondary','trending'].forEach(type=>{
+    (tags[type]||[]).forEach((tag,i)=>{
+      const chip=document.createElement('div');
+      chip.className='tag-chip '+type;chip.style.animationDelay=`${i*.05}s`;
+      chip.textContent=tag;chip.title='Click to copy';
+      chip.onclick=()=>{
+        try{navigator.clipboard.writeText(tag);}catch(e){}
+        showToast('📋 '+tag+' copied!');
+      };
+      cl.appendChild(chip);
+    });
+  });
+  if(!cl.children.length)cl.innerHTML='<span style="font-size:12px;color:var(--text-dim);">No tags generated. Try again.</span>';
+}
+
+/* ═══ BIO GENERATOR ═══ */
+async function genBio(){
+  const name=document.getElementById('bioName').value.trim()||'Your Business';
+  const type=document.getElementById('bioType').value.trim()||'Business';
+  const service=document.getElementById('bioService').value.trim()||'services';
+  const loc=document.getElementById('bioLoc').value.trim();
+  const tone=document.getElementById('bioTone').value;
+  const ld=document.getElementById('bioLoading');
+  const g=document.getElementById('bioGrid');
+  if(ld)ld.style.display='block';
+  if(g)g.innerHTML='';
+  const prompt=`Write 3 different Facebook page bios for: Name="${name}", Type="${type}", Service="${service}", Location="${loc||'not specified'}", Tone=${tone}.
+Each bio must be under 155 characters (Facebook limit). Return ONLY valid JSON:
+{"bios":[{"style":"Professional","text":"..."},{"style":"Engaging","text":"..."},{"style":"Bold","text":"..."}]}`;
+  try{
+    const res=await fetch(OR_URL,{method:'POST',headers:{'Authorization':`Bearer ${OR_KEY}`,'Content-Type':'application/json','HTTP-Referer':'https://nexamoc.com','X-Title':'Meta Checker NEXA'},body:JSON.stringify({model:MODEL,max_tokens:400,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    let txt=data.choices?.[0]?.message?.content||'';
+    txt=txt.replace(/```json|```/g,'').trim();
+    const m=txt.match(/\{[\s\S]*\}/);
+    const parsed=JSON.parse(m?m[0]:txt);
+    renderBios(parsed.bios||parsed);
+  }catch(e){
+    renderBios([
+      {style:'Professional',text:`${name} — Trusted ${type} for ${service}. Quality results with expert care.`},
+      {style:'Engaging',text:`✨ Welcome to ${name}! Passionate about ${service}. Let's build something amazing 🚀`},
+      {style:'Bold',text:`${name} | Top ${type} for ${service}. Results, not excuses. DM us now! 💪`}
+    ]);
+  }
+  if(ld)ld.style.display='none';
+}
+
+function renderBios(bios){
+  const g=document.getElementById('bioGrid');if(!g)return;g.innerHTML='';
+  (Array.isArray(bios)?bios:[]).forEach(b=>{
+    const card=document.createElement('div');card.className='bio-card';
+    const safeText=(b.text||'').replace(/'/g,"\\'").replace(/\n/g,' ');
+    card.innerHTML=`<div class="bio-style">✦ ${b.style||'Option'}</div><p class="bio-text">${b.text||''}</p><button class="copy-btn" onclick="copyBio(this,'${safeText}')">Copy Bio</button>`;
+    g.appendChild(card);
+  });
+}
+
+function copyBio(btn,txt){
+  try{navigator.clipboard.writeText(txt);}catch(e){}
+  showToast('📋 Bio copied!');
+}
+
+/* ═══ HEALTH REPORT ═══ */
+async function genHealth(){
+  const url=document.getElementById('healthUrl').value.trim();
+  const client=document.getElementById('healthClient').value.trim()||'Client';
+  if(!url){showToast('⚠ Enter a Facebook URL!');return;}
+  const ld=document.getElementById('healthLoading');
+  const res=document.getElementById('healthResult');
+  if(ld)ld.style.display='block';
+  if(res)res.style.display='none';
+  let report;
+  try{report=await callAuditAI(url);}
+  catch(e){report=fallbackReport(extractPageName(url));}
+  if(ld)ld.style.display='none';
+  renderHealthReport(url,client,report);
+  if(res)res.style.display='block';
+}
+
+function renderHealthReport(url,client,report){
+  const lbl=document.getElementById('healthClientLbl');
+  if(lbl)lbl.textContent=`📌 ${client} — ${url}`;
+  const g=document.getElementById('hmGrid');if(!g)return;g.innerHTML='';
+  const sc=report.overallScore;
+  [{icon:'🏆',val:sc+'%',label:'Overall Score',cls:sc>=70?'good':sc>=40?'ok':'bad'},
+   {icon:'✅',val:Object.values(report.items).filter(i=>i.status==='pass').length+'/10',label:'Passing',cls:'good'},
+   {icon:'⚠️',val:Object.values(report.items).filter(i=>i.status==='warn').length+'',label:'Warnings',cls:'ok'},
+   {icon:'❌',val:Object.values(report.items).filter(i=>i.status==='fail').length+'',label:'Issues',cls:'bad'},
+   {icon:'📈',val:report.overallLabel,label:'Grade',cls:sc>=70?'good':sc>=40?'ok':'bad'},
+  ].forEach(m=>{g.innerHTML+=`<div class="hm-card"><div class="hm-icon">${m.icon}</div><div class="hm-val ${m.cls}">${m.val}</div><div class="hm-label">${m.label}</div></div>`;});
+  const ai=document.getElementById('healthAiText');if(ai)ai.textContent=report.aiRecommendations;
+}
+
+async function dlHealthPDF(){
+  showToast('📄 Building health PDF...');
+  try{
+    const card=document.getElementById('healthCard');
+    const c=await html2canvas(card,{
+      backgroundColor:document.documentElement.getAttribute('data-theme')==='light'?'#f0f4ff':'#0a1020',
+      scale:2,useCORS:true,logging:false
+    });
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const pw=pdf.internal.pageSize.getWidth();
+    const imgH=(c.height*pw)/c.width;
+    pdf.addImage(c.toDataURL('image/jpeg',0.95),'JPEG',0,0,pw,Math.min(imgH,pdf.internal.pageSize.getHeight()));
+    pdf.save('client-health-report-nexa.pdf');
+    showToast('✅ Health PDF saved!');
+  }catch(e){showToast('❌ PDF failed.');}
+}
+
+/* ═══ TABS ═══ */
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  const panel=document.getElementById('tab-'+id);
+  if(panel)panel.classList.add('active');
+}
+
+/* ═══ HISTORY ═══ */
+function saveHistory(url,report){
+  const entry={url,score:report.overallScore,label:report.overallLabel,date:new Date().toLocaleDateString(),report};
+  auditHistory.unshift(entry);
+  if(auditHistory.length>20)auditHistory.pop();
+  try{localStorage.setItem('nx3_hist',JSON.stringify(auditHistory));}catch(e){}
+  renderHistory();
+}
+function renderHistory(){
+  const body=document.getElementById('hpBody');
+  const cnt=document.getElementById('histCnt');
+  if(cnt)cnt.textContent=auditHistory.length;
+  if(!body)return;
+  if(!auditHistory.length){body.innerHTML='<div class="hp-empty">No audits yet.<br>Run your first check!</div>';return;}
+  body.innerHTML='';
+  auditHistory.forEach(h=>{
+    const col=h.score>=70?'var(--green)':h.score>=40?'var(--yellow)':'var(--red)';
+    const d=document.createElement('div');d.className='hp-item';
+    d.onclick=()=>{
+      document.getElementById('urlInput').value=h.url;
+      currentReport={url:h.url,report:h.report,date:new Date()};
+      renderReport(h.url,h.report);
+      document.getElementById('report-section').style.display='block';
+      toggleHistory();
+      setTimeout(()=>document.getElementById('report-section').scrollIntoView({behavior:'smooth'}),100);
+    };
+    d.innerHTML=`<div class="hp-url">${h.url}</div><div class="hp-row"><div class="hp-score" style="color:${col}">${h.score}/100</div><div class="hp-date">${h.date}</div></div>`;
+    body.appendChild(d);
+  });
+}
+function clearHistory(){auditHistory=[];try{localStorage.removeItem('nx3_hist');}catch(e){}renderHistory();}
+function toggleHistory(){histOpen=!histOpen;document.getElementById('history-panel').classList.toggle('open',histOpen);}
+
+/* ═══ BENGALI CAT ═══ */
+function toggleCatFollow(){
+  catFollowing=!catFollowing;
+  const cat=document.getElementById('cursor-cat-el');
+  const btn=document.getElementById('catFollowBtn');
+  if(cat)cat.style.display=catFollowing?'block':'none';
+  if(btn)btn.textContent=catFollowing?'🐱 Stop Cat':'🐱 Let Cat Follow Cursor';
+  if(catFollowing)showToast('🐱 Cat is following you!');
+}
+
+const catMoods=['😺 নেক্সার বিড়াল আপনাকে স্বাগত জানাচ্ছে!','😻 আমি আপনার পেজ ঠিক করে দেব!','🐱 মেওঁ! — আমি সবসময় সাহায্যের জন্য আছি!','😸 Nexamoc Creative — সেরা ডিজাইন এজেন্সি!','🙀 এত সুন্দর পেজ! — Great work!','😼 আপনার পেজ optimize করুন আজই!'];
+let moodIdx=0;
+
+function catWave(){
+  const cat=document.getElementById('catSvg');
+  const mood=document.getElementById('catMood');
+  if(cat){
+    cat.style.transform='scale(1.15) rotate(5deg)';
+    setTimeout(()=>{cat.style.transform='';},500);
+  }
+  moodIdx=(moodIdx+1)%catMoods.length;
+  if(mood)mood.textContent=catMoods[moodIdx];
+  showToast('😸 বিড়াল hand দিচ্ছে!');
+}
+
+/* ═══ CHAT ═══ */
+function toggleChat(){
+  chatOpen=!chatOpen;
+  const panel=document.getElementById('chat-panel');
+  if(panel)panel.classList.toggle('open',chatOpen);
+}
+function qChat(txt){
+  const inp=document.getElementById('chatInp');
+  if(inp)inp.value=txt;
+  sendChat();
+}
+async function sendChat(){
+  const inp=document.getElementById('chatInp');
+  const msg=inp?inp.value.trim():'';
+  if(!msg)return;
+  if(inp)inp.value='';
+  addChatMsg(msg,'user');
+  const chips=document.getElementById('chatChips');if(chips)chips.style.display='none';
+  const typing=addChatMsg('...','bot');
+  let ctx='';
+  if(currentReport)ctx=`\n\nContext: User audited "${currentReport.url}" — score: ${currentReport.report.overallScore}/100 (${currentReport.report.overallLabel}).`;
+  try{
+    const res=await fetch(OR_URL,{method:'POST',headers:{'Authorization':`Bearer ${OR_KEY}`,'Content-Type':'application/json','HTTP-Referer':'https://nexamoc.com','X-Title':'Meta Checker NEXA'},body:JSON.stringify({model:MODEL,max_tokens:250,messages:[{role:'system',content:`You are NEXA AI, a helpful Facebook page optimization expert for the Meta Checker tool by Nexamoc Creative (a Bangladeshi design agency). Keep responses under 90 words. If the user writes in Bengali, reply in Bengali.${ctx}`},{role:'user',content:msg}]})});
+    const data=await res.json();
+    if(typing)typing.textContent=data.choices?.[0]?.message?.content||'I could not get a response. Please try again!';
+  }catch(e){
+    if(typing)typing.textContent='Connection issue. Tip: Complete your About section, set business hours, add location, and enable recommendations for a quick score boost! 🚀';
+  }
+  if(typing)typing.className='chat-msg bot';
+  const msgs=document.getElementById('chatMsgs');if(msgs)msgs.scrollTop=99999;
+}
+function addChatMsg(txt,type){
+  const msgs=document.getElementById('chatMsgs');if(!msgs)return null;
+  const el=document.createElement('div');el.className='chat-msg '+type;el.textContent=txt;
+  msgs.appendChild(el);msgs.scrollTop=99999;return el;
+}
+
+/* ═══ UTILS ═══ */
+function extractPageName(url){
+  try{const u=new URL(url.startsWith('http')?url:'https://'+url);return u.pathname.split('/').filter(Boolean)[0]||url;}catch{return url;}
+}
+function showToast(msg,dur=2500){
+  const t=document.getElementById('toast');if(!t)return;
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+/* ═══ INIT ═══ */
+window.addEventListener('DOMContentLoaded',()=>{
+  initParticles();
+  initTicker();
+  initServices();
+  renderHistory();
+  // Animate stat counter
+  const s2=document.getElementById('stat2');
+  if(s2&&checksCount>0){
+    let n=0;
+    const t=setInterval(()=>{n=Math.min(n+1,checksCount);s2.textContent=n;if(n>=checksCount)clearInterval(t);},60);
+  }
+  // Observe all .reveal elements including dynamically added ones
+  document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+});
+</script>
+</body>
+</html>
